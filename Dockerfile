@@ -6,6 +6,8 @@ COPY package.json bun.lock ./
 
 RUN bun install
 
+COPY ./src ./src
+
 COPY ./drizzle ./drizzle
 
 COPY drizzle.config.ts tsconfig.json ./
@@ -22,6 +24,8 @@ RUN bun build \
     --minify-syntax \
     --outfile server \
     src/index.ts
+
+
 # FROM debian:bullseye-slim
 FROM gcr.io/distroless/base
 
