@@ -1,0 +1,36 @@
+FROM oven/bun AS build
+
+WORKDIR /app
+
+COPY package.json bun.lock ./
+
+RUN bun install
+
+COPY ./drizzle ./drizzle
+
+COPY drizzle.config.ts tsconfig.json ./
+
+# RUN bun run bunx --bun drizzle-kit generate
+
+# RUN bun run bunx --bun drizzle-kit migrate
+
+ENV NODE_ENV=production
+
+RUN bun build \
+    --compile \
+    --minify-whitespace \
+    --minify-syntax \
+    --outfile server \
+    src/index.ts
+# FROM debian:bullseye-slim
+FROM gcr.io/distroless/base
+
+WORKDIR /app
+
+COPY --from=build /app/server server
+
+ENV NODE_ENV=production
+
+CMD ["./server"]
+
+EXPOSE $PORT
